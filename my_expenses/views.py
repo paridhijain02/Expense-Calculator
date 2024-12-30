@@ -33,9 +33,7 @@ def upload_csv(request):
 
 
 # Create your views here.
-def first(request):
-    print("LLLLLLLLLLLLLLLLLL")
-    # return HttpResponse("OOOOOOOOOOOOOOOO")
+def my_expenses(request):
     return render(request,'my_expenses/expense_list.html')
 
 
