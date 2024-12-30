@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Form</title>
+</head>
+<body>
+    <h2>Upload CSV File</h2>
+    <a class="btn btn-primary btn-lg" href="/expenses" role="button">Expenses List</a>
+    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload/">
+        {% csrf_token %}
+        <label for="csvFile">Choose a CSV file:</label>
+        <input type="file" id="csvFile" name="csvFile" accept=".csv"><br><br>
+        <input type="submit" value="Upload File">
+    </form>
+
+   <script>
+     document.getElementById('uploadForm').onsubmit = function(event) {
+            event.preventDefault();  // Prevent form submission (we'll handle it with JavaScript)
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            var formData = new FormData();
+            var fileInput = document.getElementById('csvFile');
+            formData.append('csvFile', fileInput.files[0]);
+            // Send the file to the backend (assuming the backend API is '/upload')
+            fetch('upload', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken  // Include CSRF token in request headers
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.rows) {
+                    // Store the row data in localStorage
+                    localStorage.setItem('csvRows', JSON.stringify(data.rows));
+                    var csvRows = localStorage.getItem('csvRows');
+                    const parsedData = JSON.parse(csvRows);
+                    var localStorageData = JSON.parse(localStorage.getItem("expenseData") || '[]');
+                    for(let i=0;i<parsedData.length;i++)
+                    {
+                        const formData = {
+                            name: parsedData[i][0],
+                            amount: parsedData[i][1]
+                        };
+                        localStorageData.push(formData);
+                    }
+                    localStorage.setItem("expenseData", JSON.stringify(localStorageData));
+                    alert('File uploaded successfully');
+                } else {
+                    alert('No rows data found in the response');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('File upload failed');
+            });
+        };
+   </script>
+
+</body>
+</html>
