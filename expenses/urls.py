@@ -16,10 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.profile),
+    path('shop/', include('shop.urls')),
     path('download_resume', views.download_resume,name="download_resume"),
+    path('open_resume', views.open_resume,name="open_resume"),
     path('expenses/', include('my_expenses.urls')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
